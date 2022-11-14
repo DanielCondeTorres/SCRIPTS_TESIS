@@ -174,13 +174,13 @@ def volumen_3D(X,Y,Z,YD1,correccion=1.,volumen=False,grafica=False,grafica_conve
     if grafica==True:
         fig = plt.figure()
         ax = plt.axes(projection='3d')
-        ax.contour3D(X, Y, Z, 50,cmap=cm.twilight)#cmap=cm.rainbow.reversed())
+        ax.contour3D(X, Y, Z, 50,cmap=cm.rainbow.reversed())
         f = mticker.ScalarFormatter(useOffset=False, useMathText=True)
         g = lambda x,pos : "${}$".format(f._formatSciNotation('%1.10e' % x))
         plt.gca().zaxis.set_major_formatter(mticker.FuncFormatter(g))
-        cset=ax.contourf(X, Y, Z, zdir='z',offset=0,cmap=cm.twilight)
-        cset = ax.contourf(X, Y, Z, xdir='x',offset=np.max(X),cmap=cm.twilight)
-        cset = ax.contourf(X, Y, Z, ydir='y',offset=np.max(Y),cmap=cm.twilight)
+        cset=ax.contourf(X, Y, Z, zdir='z',offset=0,cmap=cm.rainbow.reversed())
+        cset = ax.contourf(X, Y, Z, xdir='x',offset=np.max(X),cmap=cm.rainbow.reversed())
+        cset = ax.contourf(X, Y, Z, ydir='y',offset=np.max(Y),cmap=cm.rainbow.reversed())
         ax.grid(False)
         #ax.set_xlim(-2.2,-1.3)
         #ax.set_ylim(-0.3,0.3)
@@ -301,6 +301,8 @@ def transformada(YD1,T=298,R=8.314472/1000.):
     correccion=np.sum(np.exp(-(df[df.columns[2]].to_numpy()-globalmin)/(R*T)))
     return zi,np.exp(-(YD1[-1]-globalmin)/(R*T))/np.sum(np.exp(-(YD1[-1]-globalmin)/(R*T))),normalizar_z#-
 
+volumen_3D(xi,yi,zi,yd1[-1],1,False,True,False)
+
 '''
 
 
@@ -388,5 +390,4 @@ ax0.set_xlim(-8,0)
 plt.tight_layout()
 plt.show()
 plt.close()'''
-
 
