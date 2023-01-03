@@ -94,8 +94,7 @@ for i in range(1,n1Dplots):
     axs[3].plot(yd2[i], xd2[i])
 axs[1].axis('off')
 axs[3].yaxis.tick_right()
-levels=[0,factor*20,factor*40,factor*60,factor*80,factor*100,factor*120,factor*140]#*int(pmfmax/abs(pmfmax))#Niveles a representar
-levels=np.sort(levels)
+levels=list(range(0, pmfmax, 5))#Niveles a representarlevels=np.sort(levels)
 cpf = axs[2].contourf(xi, yi, zi,100,vmin=min(levels),vmax=max(levels),extend='max',cmap=cm.rainbow.reversed(),ticks=levels)
 cpf.changed()
 #Representamos la barra del gradiente de colores
