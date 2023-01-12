@@ -50,7 +50,7 @@ cv2min=-1
 cv2max=1
 #Aquí los valores máximos y mínimos del perfil energético
 pmfmax=250;factor=pmfmax/abs(pmfmax)
-pmfmin=0
+pmfmin=10
 # Read 2D fes file
 cambio_de_ejes=1 #1 o -1
 
@@ -92,7 +92,7 @@ for u in range(len(pos)):
     if abs(pos[u])<7 and abs(pos[u])>4:
         y_incerteza.append(yd1[0][u])
 plato=np.mean(y_incerteza);plato_inc=np.std(y_incerteza)
-pmfmax=0
+pmfmax=10
 pmfmin=-250
 
 
@@ -145,7 +145,7 @@ a=np.loadtxt('CV1_BA.dat')
 energia=a[:,1]
 pos=a[:,0]*cambio_de_ejes*-1
 inc=a[:,2]
-axs[0].plot(-pos,yd1[0],color='green')
+axs[0].plot(-pos,yd1[0]-plato,color='green')
 y_incerteza=[]
 for u in range(len(pos)):
     if abs(pos[u])<7 and abs(pos[u])>4:
@@ -155,14 +155,15 @@ plato=np.mean(y_incerteza);plato_inc=np.std(y_incerteza)
 
 
 print('PLATO: ',plato,'+-',plato_inc)
-axs[0].fill_between(-pos, np.array(yd1[0])-np.array(inc),np.array(yd1[0])+np.array(inc),alpha=0.3,color='green')
+print(yd1[0]-plato)
+axs[0].fill_between(-pos, np.array(yd1[0]-plato)-np.array(inc),np.array(yd1[0]-plato)+np.array(inc),alpha=0.3,color='green')
 a=np.loadtxt('CV2_BA.dat')
 energia=a[:,1]
 pos=a[:,0]
 inc=a[:,2]
 angulo_promedio_inc=np.mean(inc)
-axs[3].plot(yd2[0],(pos),color='green')
-axs[3].fill_betweenx((np.array(pos)), np.array(yd2[0])-np.array(inc),np.array(yd2[0])+np.array(inc),alpha=0.2,color='green')
+axs[3].plot(yd2[0]-plato,(pos),color='green')
+axs[3].fill_betweenx((np.array(pos)), np.array(yd2[0]-plato)-np.array(inc),np.array(yd2[0]-plato)+np.array(inc),alpha=0.2,color='green')
 y_sup=np.linspace(0,500,100)
 limite_inf=np.linspace(-1.97,-1.97,100)
 axs[0].plot(limite_inf,y_sup,linestyle='--',color='k')
