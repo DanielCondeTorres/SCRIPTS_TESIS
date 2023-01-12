@@ -44,15 +44,15 @@ def area(x,y,xmin,xmax,globalmin,T=298,R=8.314472/1000.):#listas de puntos en la
 ######################## INPUTS ################################################
 ################################################################################
 #Aquí se seleccionan los valores máximos y mínimos de las dos CVS que se esten empleando CV1, CV2
-cv1min=-10
+cv1min=-8
 cv1max=0
-cv2min=0
-cv2max=3.15
+cv2min=-1
+cv2max=1
 #Aquí los valores máximos y mínimos del perfil energético
-pmfmax=150;factor=pmfmax/abs(pmfmax)
+pmfmax=250;factor=pmfmax/abs(pmfmax)
 pmfmin=0
 # Read 2D fes file
-cambio_de_ejes=-1 #1 o -1
+cambio_de_ejes=1 #1 o -1
 
 
 
@@ -87,20 +87,21 @@ for i in range(nfesfiles,nfesfiles-n1Dplots,-1): # Read last 10 1D fes files
 
 
 #Representación gráfica
-fig, axs = plt.subplots(nrows=2, ncols=2, gridspec_kw={'width_ratios': [3, 1], 'height_ratios': [1, 3]})
+fig, axs = plt.subplots(nrows=2, ncols=2, gridspec_kw={'width_ratios': [3, 1], 'height_ratios': [1, 3],'hspace':0.15,'wspace':0.10})
 axs = axs.flatten()
 for i in range(1,n1Dplots):
     axs[0].plot(xd1[i]*cambio_de_ejes, yd1[i])#O -1 depende da tua definición de coordenada x.
     axs[3].plot(yd2[i], xd2[i])
 axs[1].axis('off')
 axs[3].yaxis.tick_right()
-levels=[0,factor*20,factor*40,factor*60,factor*80,factor*100,factor*120,factor*140]#*int(pmfmax/abs(pmfmax))#Niveles a representar
+levels=list(range(0, pmfmax, 10))#Niveles a representar
 levels=np.sort(levels)
-cpf = axs[2].contourf(xi, yi, zi,100,vmin=min(levels),vmax=max(levels),extend='max',cmap=cm.rainbow.reversed(),ticks=levels)
-cpf.changed()
+cpf = axs[2].contourf(xi, yi, zi,100,vmin=min(levels),vmax=max(levels),extend='max',cmap=cm.rainbow.reversed(),ticks=levels,levels=levels)
+cpf.changed()#contourf
 #Representamos la barra del gradiente de colores
-cbar =fig.colorbar(cpf,ax=axs[3],ticks=levels)
-cbar.ax.tick_params(labelsize=18) 
+cbar =fig.colorbar(cpf,ax=axs[3],ticks=levels,boundaries=levels)
+cbar.ax.tick_params(labelsize=18)
+#cbar.set_clim(pmfmin,pmfmax)
 cpf.changed()
 #cbar.ax.set_ylim(levels[0], levels[-1])
 cp = axs[2].contour(xi, yi, zi, levels, colors='black', linestyles='dashed')
@@ -111,19 +112,19 @@ axs[0].set_ylabel(r'$\mathbf{\Delta G\,\, (kJ/mol)}$', fontsize=20)
 axs[2].axis([cv1min,cv1max,cv2min,cv2max])
 axs[2].set_xlabel(r'$\mathbf{ Distance\,\, (nm)}$', fontsize=20)
 axs[2].set_ylabel(r'$\mathbf{ Cosine}$', fontsize=20)
-axs[2].set_ylim(-1,1)
+axs[2].set_ylim(cv2min,cv2max)
 axs[0].tick_params(axis='both', which='major', labelsize=18)
 axs[1].tick_params(axis='both', which='major', labelsize=18)
 axs[2].tick_params(axis='both', which='major', labelsize=18)
 axs[3].tick_params(axis='both', which='major', labelsize=18)
 
 #Limites da gráfica
-axs[2].set_xlim(-8,0)
-axs[0].set_xlim(-8,0)
+axs[2].set_xlim(cv1min,cv1max)
+axs[0].set_xlim(cv1min,cv1max)
 axs[3].axis([levels[0],levels[-1],cv2min,cv2max])
 axs[3].get_yaxis().set_visible(False)
 axs[3].set_xlabel(r'$\mathbf{\Delta G\,\, (kJ/mol)}$', fontsize=20)
-axs[3].set_ylim(-1,1)
+axs[3].set_ylim(cv2min,cv2max)
 
 
 
@@ -134,14 +135,14 @@ a=np.loadtxt('CV1_BA.dat')
 energia=a[:,1]
 pos=a[:,0]
 inc=a[:,2]
-axs[0].plot(-pos,yd1[0],color='green')
+axs[0].plot(pos*cambio_de_ejes,yd1[0],color='green')
 y_incerteza=[]
 for u in range(len(pos)):
     if abs(pos[u])<7 and abs(pos[u])>4:
         y_incerteza.append(yd1[0][u])
 plato=np.mean(y_incerteza);plato_inc=np.std(y_incerteza)
 print('PLATO: ',plato,'+-',plato_inc)
-axs[0].fill_between(-pos, np.array(yd1[0])-np.array(inc),np.array(yd1[0])+np.array(inc),alpha=0.3,color='green')
+axs[0].fill_between(cambio_de_ejes*pos, np.array(yd1[0])-np.array(inc),np.array(yd1[0])+np.array(inc),alpha=0.3,color='green')
 a=np.loadtxt('CV2_BA.dat')
 energia=a[:,1]
 pos=a[:,0]
@@ -152,8 +153,8 @@ axs[3].fill_betweenx((np.array(pos)), np.array(yd2[0])-np.array(inc),np.array(yd
 y_sup=np.linspace(0,500,100)
 limite_inf=np.linspace(-1.97,-1.97,100)
 axs[0].plot(limite_inf,y_sup,linestyle='--',color='k')
-axs[2].set_xlim(-8,0)
-axs[0].set_xlim(-8,0)
+axs[2].set_xlim(cv1min,cv1max)
+axs[0].set_xlim(cv1min,cv1max)
 from matplotlib.ticker import MaxNLocator
 axs[0].yaxis.set_major_locator(MaxNLocator(5))
 axs[0].set_ylim(0,pmfmax)
@@ -341,13 +342,13 @@ axs[0].tick_params(axis='both', which='major', labelsize=24)
 axs[1].tick_params(axis='both', which='major', labelsize=24)
 axs[2].tick_params(axis='both', which='major', labelsize=24)
 axs[3].tick_params(axis='both', which='major', labelsize=24)
-axs[2].set_xlim(-8,-.5)
-axs[0].set_xlim(-8,-.5)
+axs[2].set_xlim(cv1min,cv1max)
+axs[0].set_xlim(cv1min,cv1max)
 axs[3].axis([levels[0],levels[-1],cv2min,cv2max])
 axs[3].get_yaxis().set_visible(False)
 #axs[3].set_xlabel(r'$\mathbf{exp(-\beta*\Delta G) }$', fontsize=20)
 axs[3].set_xlabel(r'$\mathbf{Probability }$', fontsize=22)
-axs[3].set_ylim(-1,1)
+axs[3].set_ylim(cv2min,cv2max)
 
 
 axs[3].set_xlim(0.,0.02)
