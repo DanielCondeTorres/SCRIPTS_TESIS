@@ -1,0 +1,33 @@
+RESTART
+
+#Indices
+PEP_: GROUP NDX_FILE=index.ndx NDX_GROUP=Protein
+MEM_: GROUP NDX_FILE=index.ndx NDX_GROUP=POPC
+NTER: GROUP NDX_FILE=index.ndx NDX_GROUP=NTERM
+CTER: GROUP NDX_FILE=index.ndx NDX_GROUP=CTERM
+
+#Hacemos las moleculas un grupo para que no se rompan por pbc
+WHOLEMOLECULES ENTITY0=PEP_ ENTITY1=MEM_
+
+#Obtenemos centro de masas
+PEP: COM ATOMS=PEP_
+MEM: COM ATOMS=MEM_
+
+#Calculamos distancias
+D: DISTANCE ATOMS=MEM,PEP COMPONENTS #origen membrana a peptido
+#Calculamos orientacion del peptido
+
+d: DISTANCE ATOMS=NTER,CTER #Peptido vector N-terminal, C-terminal
+dc: DISTANCE ATOMS=NTER,CTER COMPONENTS
+angle: MATHEVAL PERIODIC=NO ARG=dc.z,d,D.z FUNC=(x/y*(z/((z^2)^0.5))) #De esta forma 1 es Nterm y Cterm es -1; comprobar con VMD
+
+
+
+#Muros para que no atraviesen el centro de la caja
+uwall: UPPER_WALLS ARG=D.z AT=0.5 KAPPA=50000 EPS=1.0
+lwall: LOWER_WALLS ARG=D.z AT=-7 KAPPA=50000 EPS=1.0
+
+
+METAD ARG=D.z,angle SIGMA=0.03,0.05 HEIGHT=0.5 PACE=500 WALKERS_MPI LABEL=metad FILE=../HILLS RESTART=YES BIASFACTOR=45 TEMP=298.0 GRID_MIN=-8,-1 GRID_MAX=8,1 GRID_SPACING=0.006,0.01
+
+PRINT ARG=D.z,angle STRIDE=100  FILE=COLVAR #,metad.bias
