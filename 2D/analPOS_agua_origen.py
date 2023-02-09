@@ -53,7 +53,9 @@ pmfmax=250;factor=pmfmax/abs(pmfmax)
 pmfmin=10
 # Read 2D fes file
 cambio_de_ejes=1 #1 o -1
-
+abrir=np.loadtxt('POSICION_PLANO.dat')
+binding_free=abrir
+print('BINDING: ',binding_free)
 
 
 
@@ -124,7 +126,7 @@ axs[0].get_xaxis().set_visible(False)
 axs[0].set_ylabel(r'$\mathbf{\Delta G\,\, (kJ/mol)}$', fontsize=24)
 axs[2].axis([cv1min,cv1max,cv2min,cv2max])
 axs[2].set_xlabel(r'$\mathbf{ Distance\,\, (nm)}$', fontsize=24)
-axs[2].set_ylabel(r'$\mathbf{ Cosine (\phi)}$', fontsize=24)
+axs[2].set_ylabel(r'$\mathbf{ Cos (\phi)}$', fontsize=24)
 axs[2].set_ylim(cv2min,cv2max)
 axs[0].tick_params(axis='both', which='major', labelsize=22)
 axs[1].tick_params(axis='both', which='major', labelsize=22)
@@ -155,6 +157,7 @@ plato=np.mean(y_incerteza);plato_inc=np.std(y_incerteza)
 
 
 print('PLATO: ',plato,'+-',plato_inc)
+#Observamos en que valor empieza a decaer
 print(yd1[0]-plato)
 axs[0].fill_between(-pos, np.array(yd1[0]-plato)-np.array(inc),np.array(yd1[0]-plato)+np.array(inc),alpha=0.3,color='green')
 a=np.loadtxt('CV2_BA.dat')
@@ -175,12 +178,17 @@ y_sup=np.linspace(-500,500,100)
 limite_inf=np.linspace(-1.97,-1.97,100)
 axs[0].plot(limite_inf,y_sup,linestyle='dotted',color='red',label='HGs')
 interaccion_y=np.linspace(-500,500,100)
-interaccion_x=np.linspace(-4.3,-4.3,100)
+interaccion_x=np.linspace(binding_free,binding_free,100)
 from matplotlib.ticker import FormatStrFormatter
 axs[0].plot(interaccion_x,interaccion_y,linestyle='--',color='k',label='F/B')
 axs[2].yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 fig.tight_layout()
-axs[0].legend(fontsize=22)
+
+#axs[0].legend(fontsize=22)
+
+axs[0].text(-2.2,-300,'HGs',color='red',fontsize=22)
+axs[0].text(binding_free-0.2,-300,'F/B',color='black',fontsize=22)
+
 axs[3].xaxis.set_major_locator(MaxNLocator(4))
 
 plt.savefig("fes.png")
