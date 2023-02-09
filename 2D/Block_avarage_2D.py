@@ -111,18 +111,20 @@ def media_movil(x,n):
 ################################################################################################################################################
 orden_cv1=int(len(energia_CV1)/1.4)
 orden_cv2=int(len(energia_CV2)/1.4)
-
 print('')
 print('-----------------------------------------------------------------------')
 print('Cálculo de la diferencia entre el mínimo y la parte plana de la función')
 print('-----------------------------------------------------------------------')
 archivo_cv1=np.loadtxt('CV1_BA.dat')
 energia_cv1=archivo_cv1[:,1]
-energia_cv1=media_movil(energia_cv1,orden_cv1)
+energia_cv1_n=media_movil(energia_cv1,orden_cv1)
 posicion_cv1=archivo_cv1[:,0]
 incertidumbre_cv1=archivo_cv1[:,2]
 plt.plot(posicion_cv1,energia_cv1,color='blue')
+plt.plot(posicion_cv1,energia_cv1_n,color='orange')
+
 plt.fill_between(posicion_cv1, np.array(energia_cv1)-np.array(incertidumbre_cv1),np.array(energia_cv1)+np.array(incertidumbre_cv1),alpha=0.2,color='blue')
+plt.fill_between(posicion_cv1, np.array(energia_cv1_n)-np.array(incertidumbre_cv1),np.array(energia_cv1_n)+np.array(incertidumbre_cv1),alpha=0.2,color='orange')
 
 def buscar_parte_plana(posicion,CV,energia,incertidumbre,limite_busqueda=40,CV1=False,CV2=False):
     print(f'Calculando para {CV:s}...')
@@ -144,6 +146,32 @@ def buscar_parte_plana(posicion,CV,energia,incertidumbre,limite_busqueda=40,CV1=
         except IndexError or ValueError:
             print(f'No se ha encontrado parte plana en {CV:s}')
 plana_cv1=buscar_parte_plana(posicion_cv1,'CV1',energia_cv1,incertidumbre_cv1,40,True,False)
+#Posicion rompe parte plana:
+#Metodo lineas se separan
+print('Busqueda de la posición de separación):')
+metodos=[]
+for elemento in range(len(energia_cv1_n)):
+    if energia_cv1_n[elemento]-incertidumbre_cv1[elemento]<energia_cv1[elemento]+incertidumbre_cv1[elemento] and energia_cv1_n[elemento]+incertidumbre_cv1[elemento]>energia_cv1[elemento]-incertidumbre_cv1[elemento]:
+        continue
+    else:
+        print('Posicion METODO 1: ',posicion_cv1[elemento])
+        metodos.append(posicion_cv1[elemento])
+        break
+promedio=np.mean(energia_cv1[0:202])#de la parte plana
+for elemento in range(len(energia_cv1)):
+    if energia_cv1[elemento]<promedio+incertidumbre_cv1[elemento] and energia_cv1_n[elemento]>promedio-incertidumbre_cv1[elemento]:
+        continue
+    else:
+        print('Posicion METODO 2: ',posicion_cv1[elemento])
+
+        metodos.append(posicion_cv1[elemento])
+        break
+with open('POSICION_PLANO.dat','w') as files:
+        files.write(str(np.mean(metodos)))
+#for elemento in range(energia_cv1):
+    
+
+
 plt.show()
 plt.close()
 archivo_cv2=np.loadtxt('CV2_BA.dat')
@@ -156,7 +184,6 @@ plt.fill_between(posicion_cv2, np.array(energia_cv2)-np.array(incertidumbre_cv2)
 plana_cv1=buscar_parte_plana(posicion_cv2,'CV2',energia_cv2,incertidumbre_cv2,40,False,True)
 plt.show()
 plt.close()
-
 
 ################################################################################################################################################
 ################################################################################################################################################
