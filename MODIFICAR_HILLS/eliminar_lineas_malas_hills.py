@@ -9,4 +9,4 @@ with open( 'HILLS', 'r+' ) as file:
                     new.write(line)
             except ValueError:
                 pass
-#new.close()
+new.close()
