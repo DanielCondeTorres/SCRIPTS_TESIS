@@ -116,9 +116,12 @@ print('-----------------------------------------------------------------------')
 print('Cálculo de la diferencia entre el mínimo y la parte plana de la función')
 print('-----------------------------------------------------------------------')
 archivo_cv1=np.loadtxt('CV1_BA.dat')
+ejes=-1
 energia_cv1=archivo_cv1[:,1]
+energia_cv1=energia_cv1[::ejes]#energia_cv1.reverse()
+
 energia_cv1_n=media_movil(energia_cv1,orden_cv1)
-posicion_cv1=archivo_cv1[:,0]
+posicion_cv1=archivo_cv1[:,0]*ejes
 incertidumbre_cv1=archivo_cv1[:,2]
 plt.plot(posicion_cv1,energia_cv1,color='blue')
 plt.plot(posicion_cv1,energia_cv1_n,color='orange')
@@ -157,9 +160,12 @@ for elemento in range(len(energia_cv1_n)):
         print('Posicion METODO 1: ',posicion_cv1[elemento])
         metodos.append(posicion_cv1[elemento])
         break
-promedio=np.mean(energia_cv1[0:202])#de la parte plana
+print(energia_cv1)
+promedio=np.mean(energia_cv1[0:102])#de la parte plana
+promedio=archivo_cv1[i,1]
+print('PROMEDIO: ',archivo_cv1[i,1])
 for elemento in range(len(energia_cv1)):
-    if energia_cv1[elemento]<promedio+incertidumbre_cv1[elemento] and energia_cv1_n[elemento]>promedio-incertidumbre_cv1[elemento]:
+    if energia_cv1[elemento]<promedio+incertidumbre_cv1[elemento] and energia_cv1_n[elemento]>promedio-incertidumbre_cv1[elemento] or abs(posicion_cv1[elemento])>6:
         continue
     else:
         print('Posicion METODO 2: ',posicion_cv1[elemento])
