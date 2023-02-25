@@ -52,9 +52,9 @@ cv2max=1
 pmfmax=250;factor=pmfmax/abs(pmfmax)
 pmfmin=0
 # Read 2D fes file
-cambio_de_ejes=1 #1 o -1
-free_binding=-4.3
-
+cambio_de_ejes=-1 #1 o -1
+abrir=np.loadtxt('POSICION_PLANO.dat')
+free_binding=abrir*cambio_de_ejes
 
 
 
@@ -554,6 +554,9 @@ print('-------------------------------------------------------------------------
 #print('dif: ',area_cv1,'cte: ',np.exp(-globalmin_p/(R*T)))
 print('-------------------------------------------------------------------------')
 #print('COMBINADO: ',area_cv2*area_cv3/(2*longitud))
+vol_exp2=volumen_3D(xi,yi,zi_nueva,yd1_nueva,correccion,True,False,False,free_binding)
+print('KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK 2D BUENO: ', -R*T*np.log(vol_exp2/(2*1660**(1/3.)*np.exp(-plato/(R*T))/correccion)))
+
 print('K 2D BUENO: ', -R*T*np.log(vol_exp/(2*1660**(1/3.)*np.exp(-plato/(R*T))/correccion)))
 print('K2D: ',np.mean(delta_g_vol),'+-',np.std(delta_g_vol))
 print('Inc_extra: ',np.sqrt((-1./(R*T)*plato_inc)**2+(-1/(R*T)*angulo_promedio_inc)**2)*1.96)
