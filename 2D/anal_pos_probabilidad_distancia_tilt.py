@@ -53,7 +53,7 @@ pmfmax=250;factor=pmfmax/abs(pmfmax)
 pmfmin=0
 # Read 2D fes file
 cambio_de_ejes=1 #1 o -1
-
+free_binding=-4.3
 
 
 
@@ -133,16 +133,16 @@ axs[3].set_ylim(cv2min,cv2max)
 ##################################
 a=np.loadtxt('CV1_BA.dat')
 energia=a[:,1]
-pos=a[:,0]
+pos=a[:,0]*cambio_de_ejes*-1
 inc=a[:,2]
-axs[0].plot(pos*cambio_de_ejes,yd1[0],color='green')
+axs[0].plot(-pos,yd1[0],color='green')
 y_incerteza=[]
 for u in range(len(pos)):
     if abs(pos[u])<7 and abs(pos[u])>4:
         y_incerteza.append(yd1[0][u])
 plato=np.mean(y_incerteza);plato_inc=np.std(y_incerteza)
 print('PLATO: ',plato,'+-',plato_inc)
-axs[0].fill_between(cambio_de_ejes*pos, np.array(yd1[0])-np.array(inc),np.array(yd1[0])+np.array(inc),alpha=0.3,color='green')
+axs[0].fill_between(-pos, np.array(yd1[0])-np.array(inc),np.array(yd1[0])+np.array(inc),alpha=0.3,color='green')
 a=np.loadtxt('CV2_BA.dat')
 energia=a[:,1]
 pos=a[:,0]
@@ -151,8 +151,6 @@ angulo_promedio_inc=np.mean(inc)
 axs[3].plot(yd2[0],(pos),color='green')
 axs[3].fill_betweenx((np.array(pos)), np.array(yd2[0])-np.array(inc),np.array(yd2[0])+np.array(inc),alpha=0.2,color='green')
 y_sup=np.linspace(0,500,100)
-limite_inf=np.linspace(-1.97,-1.97,100)
-axs[0].plot(limite_inf,y_sup,linestyle='--',color='k')
 axs[2].set_xlim(cv1min,cv1max)
 axs[0].set_xlim(cv1min,cv1max)
 from matplotlib.ticker import MaxNLocator
@@ -162,9 +160,10 @@ axs[3].set_xlim(0,pmfmax)
 #Generamos linea posición fosforos
 y_sup=np.linspace(0,500,100)
 limite_inf=np.linspace(-1.97,-1.97,100)
-axs[0].plot(limite_inf,y_sup,linestyle='dotted',color='yellow')
+axs[0].plot(limite_inf,y_sup,linestyle='dotted',color='red')
 interaccion_y=np.linspace(0,500,100)
-interaccion_x=np.linspace(-3.7,-3.7,100)
+
+interaccion_x=np.linspace(free_binding,free_binding,100)
 axs[0].plot(interaccion_x,interaccion_y,linestyle='--',color='k')
 axs[0].plot
 fig.tight_layout()
@@ -177,7 +176,7 @@ import pyvista as pv
 import matplotlib.ticker as mticker
 from matplotlib.ticker import FuncFormatter
 from scipy.spatial import ConvexHull, convex_hull_plot_2d
-def volumen_3D(X,Y,Z,YD1,correccion=1.,volumen=False,grafica=False,grafica_convex=False,limite=3.67):
+def volumen_3D(X,Y,Z,YD1,correccion=1.,volumen=False,grafica=False,grafica_convex=False,limite=free_binding):
     print('Correccion: ',correccion)
     if grafica==True:
         fig = plt.figure()
