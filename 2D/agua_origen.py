@@ -49,12 +49,12 @@ cv1max=0
 cv2min=-1
 cv2max=1
 #Aquí los valores máximos y mínimos del perfil energético
-pmfmax=250;factor=pmfmax/abs(pmfmax)
-pmfmin=10
+pmfmax_=200;pmfmax=pmfmax_;factor=pmfmax/abs(pmfmax)
+pmfmin_=10
 # Read 2D fes file
-cambio_de_ejes=1 #1 o -1
+cambio_de_ejes=-1 #1 o -1
 abrir=np.loadtxt('POSICION_PLANO.dat')
-binding_free=abrir
+binding_free=abrir*cambio_de_ejes
 print('BINDING: ',binding_free)
 
 
@@ -94,8 +94,8 @@ for u in range(len(pos)):
     if abs(pos[u])<7 and abs(pos[u])>4:
         y_incerteza.append(yd1[0][u])
 plato=np.mean(y_incerteza);plato_inc=np.std(y_incerteza)
-pmfmax=21
-pmfmin=-250
+pmfmax=pmfmin_
+pmfmin=-1*pmfmax_
 
 
 #Representación gráfica
@@ -109,7 +109,7 @@ axs[3].yaxis.tick_right()
 levels=list(range(int(pmfmin), int(pmfmax), 10))#Niveles a representar
 print(levels)
 #levels=np.sort(levels)
-cpf = axs[2].contourf(xi, yi, zi-plato,1000,vmin=min(levels),vmax=10,cmap=cm.jet.reversed(),ticks=levels,levels=levels)
+cpf = axs[2].contourf(xi, yi, zi-plato,1000,vmin=min(levels),vmax=max(levels),extend='both',cmap=cm.jet.reversed(),ticks=levels,levels=levels)
 cpf.changed()#contourf
 #Representamos la barra del gradiente de colores
 levels2=list(range(int(pmfmin), int(pmfmax), 50))#Niveles a representar
@@ -128,10 +128,10 @@ axs[2].axis([cv1min,cv1max,cv2min,cv2max])
 axs[2].set_xlabel(r'$\mathbf{ Distance\,\, (nm)}$', fontsize=24)
 axs[2].set_ylabel(r'$\mathbf{ Cos (\phi)}$', fontsize=24)
 axs[2].set_ylim(cv2min,cv2max)
-axs[0].tick_params(axis='both', which='major', labelsize=22)
-axs[1].tick_params(axis='both', which='major', labelsize=22)
-axs[2].tick_params(axis='both', which='major', labelsize=22)
-axs[3].tick_params(axis='both', which='major', labelsize=22)
+axs[0].tick_params(axis='both', which='major', labelsize=20)
+axs[1].tick_params(axis='both', which='major', labelsize=20)
+axs[2].tick_params(axis='both', which='major', labelsize=20)
+axs[3].tick_params(axis='both', which='major', labelsize=20)
 
 #Limites da gráfica
 axs[2].set_xlim(cv1min,cv1max)
@@ -173,6 +173,7 @@ from matplotlib.ticker import MaxNLocator
 axs[0].yaxis.set_major_locator(MaxNLocator(4))
 axs[0].set_ylim(pmfmin,pmfmax)
 axs[3].set_xlim(pmfmin,pmfmax)
+
 #Generamos linea posición fosforos
 y_sup=np.linspace(-500,500,100)
 limite_inf=np.linspace(-1.97,-1.97,100)
@@ -186,11 +187,13 @@ fig.tight_layout()
 
 #axs[0].legend(fontsize=22)
 
-axs[0].text(-2.2,-300,'HGs',color='red',fontsize=22)
-axs[0].text(binding_free-0.2,-300,'F/B',color='black',fontsize=22)
+axs[0].text(-2.2,-250,'HGs',color='red',fontsize=22)
+axs[0].text(binding_free-0.2,-250,'F/B',color='black',fontsize=22)
 
-axs[3].xaxis.set_major_locator(MaxNLocator(4))
-
+axs[3].xaxis.set_major_locator(MaxNLocator(3))
+axs[3].minorticks_on()
+axs[0].minorticks_on()
+axs[2].minorticks_on()
 plt.savefig("fes.png")
 plt.show()
 plt.close()
