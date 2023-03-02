@@ -116,12 +116,9 @@ print('-----------------------------------------------------------------------')
 print('Cálculo de la diferencia entre el mínimo y la parte plana de la función')
 print('-----------------------------------------------------------------------')
 archivo_cv1=np.loadtxt('CV1_BA.dat')
-ejes=-1
 energia_cv1=archivo_cv1[:,1]
-energia_cv1=energia_cv1[::ejes]#energia_cv1.reverse()
-
 energia_cv1_n=media_movil(energia_cv1,orden_cv1)
-posicion_cv1=archivo_cv1[:,0]*ejes
+posicion_cv1=archivo_cv1[:,0]
 incertidumbre_cv1=archivo_cv1[:,2]
 plt.plot(posicion_cv1,energia_cv1,color='blue')
 plt.plot(posicion_cv1,energia_cv1_n,color='orange')
@@ -130,7 +127,7 @@ plt.fill_between(posicion_cv1, np.array(energia_cv1)-np.array(incertidumbre_cv1)
 plt.fill_between(posicion_cv1, np.array(energia_cv1_n)-np.array(incertidumbre_cv1),np.array(energia_cv1_n)+np.array(incertidumbre_cv1),alpha=0.2,color='orange')
 
 def buscar_parte_plana(posicion,CV,energia,incertidumbre,limite_busqueda=40,CV1=False,CV2=False):
-    print(f'Calculando para {CV:s}...')
+    print(f'Calculando para {CV:s}...');energys=0;desvis=0
     for i in range(len(posicion)):
         try:
             if i<limite_busqueda:
@@ -141,34 +138,40 @@ def buscar_parte_plana(posicion,CV,energia,incertidumbre,limite_busqueda=40,CV1=
                 margen_1=int(np.mean(energia[i-limite_busqueda:i]));margen_2=int(np.mean(energia[i:i+limite_busqueda]))
                 if  int(energia[i])==margen_1 and int(energia[i])==margen_2 and int(energia[i])==int(energia[i+limite_busqueda]) and energia[i]<margen_1+incertidumbre[i] and energia[i]>margen_1-incertidumbre[i] and energia[i]<margen_2+incertidumbre[i] and energia[i]>margen_2-incertidumbre[i]:
                     if CV1==True:
-                        print(f"Valor medio {CV:s}= {archivo_cv1[i,1]:.3f} +/- {archivo_cv1[i,2]:.3f}")
+                        print(f"Valor medio {CV:s}= {archivo_cv1[i,1]:.3f} +/- {archivo_cv1[i,2]:.3f}");energys=archivo_cv1[i,1];desvis=archivo_cv1[i,2]
                         break
                     elif CV2==True:
                         print(f"Valor medio {CV:s}= {archivo_cv1[i,1]:.3f} +/- {archivo_cv1[i,2]:.3f}")
                         break
         except IndexError or ValueError:
             print(f'No se ha encontrado parte plana en {CV:s}')
-plana_cv1=buscar_parte_plana(posicion_cv1,'CV1',energia_cv1,incertidumbre_cv1,40,True,False)
+    return energys,desvis
+plana_cv1,desvis=buscar_parte_plana(posicion_cv1,'CV1',energia_cv1,incertidumbre_cv1,40,True,False)
 #Posicion rompe parte plana:
 #Metodo lineas se separan
 print('Busqueda de la posición de separación):')
 metodos=[]
+energia_cv1=energia_cv1[::-1]#energia_cv1.reverse()
+energia_cv1_n=energia_cv1_n[::-1]#energia_cv1_n.reverse()
+posicion_cv1=posicion_cv1[::-1]#posicion_cv1.reverse()
+promedio=np.mean(energia_cv1[100:202])#de la parte plana
+promedio=plana_cv1
 for elemento in range(len(energia_cv1_n)):
-    if energia_cv1_n[elemento]-incertidumbre_cv1[elemento]<energia_cv1[elemento]+incertidumbre_cv1[elemento] and energia_cv1_n[elemento]+incertidumbre_cv1[elemento]>energia_cv1[elemento]-incertidumbre_cv1[elemento]:
+    if energia_cv1_n[elemento]-incertidumbre_cv1[elemento]<promedio+desvis and energia_cv1_n[elemento]+incertidumbre_cv1[elemento]>promedio-desvis or abs(posicion_cv1[elemento])>8:
         continue
     else:
         print('Posicion METODO 1: ',posicion_cv1[elemento])
         metodos.append(posicion_cv1[elemento])
         break
-print(energia_cv1)
-promedio=np.mean(energia_cv1[0:102])#de la parte plana
-promedio=archivo_cv1[i,1]
-print('PROMEDIO: ',archivo_cv1[i,1])
+
+print('promedio: ',energia_cv1[50])
+print('Eing: ',promedio,desvis)
 for elemento in range(len(energia_cv1)):
-    if energia_cv1[elemento]<promedio+incertidumbre_cv1[elemento] and energia_cv1_n[elemento]>promedio-incertidumbre_cv1[elemento] or abs(posicion_cv1[elemento])>6:
+    if energia_cv1[elemento]<promedio+desvis and energia_cv1[elemento]>promedio-desvis or abs(posicion_cv1[elemento])>3.8:
+
         continue
     else:
-        print('Posicion METODO 2: ',posicion_cv1[elemento])
+        print('Posicion METODO 2: ',posicion_cv1[elemento],energia_cv1[elemento])
 
         metodos.append(posicion_cv1[elemento])
         break
@@ -272,4 +275,3 @@ print('')
 print('-----------------------------------------------')
 print('FIN DEL PROGRAMA')
 print('-----------------------------------------------')
-################################################################################################################################################
