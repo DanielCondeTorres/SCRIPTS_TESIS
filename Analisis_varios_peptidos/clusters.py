@@ -85,6 +85,11 @@ def quien_toca_a_cada_peptido_por_cada_frame(peptido_situado,frame,matriz_contac
             quien_toca_al_peptido_por_frame[elemento][tiempo]=con_quien_toca_por_tiempo    
     return quien_toca_al_peptido_por_frame
 
+
+
+
+
+
 #Buscar valores equivalentes
 def find_keys(dic):
     result = {}
@@ -110,7 +115,7 @@ def almacenar_valores_peptido_contacto(dic,tiempo):
         valores.append(len(value))
     return valores
 
-def representacion(array,tiempos):
+def representacion(array,tiempos,numero_peptidos_en_el_sistema):
     f,c=np.shape(np.array(array))
     lstyle=['--','-.',':','-','--','-.',':','-']
     colors=['blue','red','k','green','orange','purple','yellow','brown']
@@ -123,6 +128,20 @@ def representacion(array,tiempos):
     plt.xticks(fontsize=20);plt.yticks(np.arange(0,numero_peptidos_en_el_sistema+2,1),fontsize=20)
     plt.show()
 
+def representacion2(array,tiempos,numero_peptidos_en_el_sistema):
+    f,c=np.shape(np.array(array))
+    lstyle=['--','-.',':','-','--','-.',':','-']
+    colors=['blue','red','k','green','orange','purple','yellow','brown']
+    for peptides in range(c):
+        plt.plot(tiempos_append,list(np.array(array)[:,peptides]),label='Cluster size '+str(peptides+1),color=colors[peptides],ls=lstyle[peptides],marker='o')
+    plt.legend()
+    #Tiempo ps, Distancias Amstrongs
+    plt.xlabel('Time (microseconds)',fontsize=22)
+    plt.ylabel('Peptides in the cluster size',fontsize=22)
+
+    plt.ylim(0,9)
+    plt.xticks(fontsize=20);plt.yticks(np.arange(0,numero_peptidos_en_el_sistema+2,1),fontsize=20)
+    plt.show()
 
 
 ###########################################################################################################
@@ -150,11 +169,12 @@ quien_toca_al_peptido_por_frame=quien_toca_a_cada_peptido_por_cada_frame(peptido
 cluster_final=[];tiempos_final=[]
 lista=list(range(1,numero_peptidos_en_el_sistema+1,1))
 
+peptidos_por_cluster=[]
 tiempos_append=[]
 Peptido=[]
 for elemento in range(frame):
     donde_estoy=0
-    clusters=[];tiempos=[]
+    clusters=[];tiempos=[];zz=[]
     diccionario_contactos = {}
     for p in lista:
     	diccionario_contactos[p]=set()
@@ -164,9 +184,7 @@ for elemento in range(frame):
         donde_estoy+=1
         clusters.append(len(te_toca))
     tiempos.append(times[elemento]*10**(-6))#poner tiempos
-    #print('Diccionario:',diccionario_contactos)
     dictado=calculamos_clusters(diccionario_contactos,numero_peptidos_en_el_sistema+1)
-    print('Diccionario final:',dictado)
     tiempos_final.append(tiempos)
     cluster_final.append(clusters)
     cluster_lista=[]
@@ -175,13 +193,14 @@ for elemento in range(frame):
     for lista_keys in unique_values(dictado):
         cluster_lista.append(1)
     tamaño_marker=marksize(cluster_lista,factor_marker)
-    print('CLUSTER:',cluster_lista)
+    for rr in range(1,numero_peptidos_en_el_sistema+1):#contamos los peptidos por cluster
+        cluster_lista.count(rr);zz.append(cluster_lista.count(rr)*(rr))#por el valor minimo del cluster (rr)
+    peptidos_por_cluster.append(zz)
     primero=len(cluster_lista);segundo=len(tamaño_marker);cociente=int(primero/segundo)
     size=tamaño_marker
-    print('Size',size)
     #plt.scatter([tiempos]*len(cluster_lista),cluster_lista,s=size,color='blue')
     Peptido.append(almacenar_valores_peptido_contacto(dictado,float(tiempos[0])))
     tiempos_append.append(float(tiempos[0]))
-
-grafica=representacion(Peptido,tiempos_append)
+grafica=representacion(Peptido,tiempos_append,numero_peptidos_en_el_sistema)
+grafica=representacion2(peptidos_por_cluster,tiempos_append,numero_peptidos_en_el_sistema)
 ###########################################################################################################
