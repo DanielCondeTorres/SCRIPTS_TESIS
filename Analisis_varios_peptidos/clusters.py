@@ -16,7 +16,7 @@ def marksize(my_list,factor):
 #Funcion donde establecemos el numero de contactos
 def contacts_within_cutoff(u, group_a, group_b, radius=6.0):
     timeseries = [];time=[]
-    for ts in u.trajectory:
+    for ts in u.trajectory[::10]:
         # calculate distances between group_a and group_b
         dist = contacts.distance_array(group_a.positions, group_b.positions)
         # determine which distances <= radius
