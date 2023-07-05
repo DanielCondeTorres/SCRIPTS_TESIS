@@ -127,8 +127,9 @@ def analisis_cluster(archivos_gro, archivos_xtc, referencias):
             radio_giro = seleccion.radius_of_gyration()
 
             caracteristicas.append([porcentaje_helix, radio_giro])
-
+	    	
             rmsd_totales.append(rms.rmsd(seleccion.positions, seleccion_ref.positions, superposition=True))
+
         tiempos_totales.append(tiempos)		
     caracteristicas = np.array(caracteristicas)
     tiempos_totales=np.array(tiempos_totales)
@@ -138,7 +139,7 @@ def analisis_cluster(archivos_gro, archivos_xtc, referencias):
     kmeans = KMeans(n_clusters=n_clusters)
     kmeans.fit(caracteristicas)
     etiquetas_cluster_totales = kmeans.labels_
-
+    print(kmeans.labels_)
     return rmsd_totales, etiquetas_cluster_totales,tiempos_totales
 
 
@@ -151,22 +152,37 @@ archivos_xtc = ['GROMOS_QUAD/conc.xtc', 'GROMOS_DEU/conc.xtc', 'GROMOS_HMR/conc.
 fig, axs = plt.subplots(3, 2,sharex=True, sharey=True)#son 6 simulaciones, por lo que 3*2
 fig.subplots_adjust(wspace=0, hspace=0)
 
+r,etiquetas_cluster,l=analisis_cluster(archivos_gro, archivos_xtc, referencias)
+print('bbbbbbbbbbbbbbbb')
+print(etiquetas_cluster)
+print('aaaaaaaaaaaaaaaaaa')
+hasta_donde_llega_cada_grupo_anterior=0#iniciador
 for i, (gro, xtc, ref) in enumerate(zip(archivos_gro, archivos_xtc, referencias)):
-    rmsd, etiquetas_cluster,tiempo = analisis_cluster([gro], [xtc], [ref])
+    print('ARCHIIIIIIIIIIIIIIIIIII_',[gro])
+    rmsd, etiquetas_cluste,tiempo = analisis_cluster([gro], [xtc], [ref])
+    print(type(etiquetas_cluste),type(etiquetas_cluster))
+    print('coño::::::::::::::::::::::::::::::',etiquetas_cluste)
+    print('plllllllllllll',np.shape(etiquetas_cluste),np.shape(etiquetas_cluster))
     colores = ['r', 'g', 'b', 'c', 'm', 'y']
-    print(i) 
+
     row = i % 3
     col = i // 3
     tiempo=tiempo.reshape(len(rmsd))/1000
     axs[row, col].set_title(lista_de_simulaciones[i])
     axs[row, col].plot(tiempo, rmsd,color='k')
+    print(len(etiquetas_cluster)/len(archivos_gro))
+    hasta_donde_llega_cada_grupo=len(etiquetas_cluste)
+    print('estamos hasta: ',hasta_donde_llega_cada_grupo+hasta_donde_llega_cada_grupo_anterior)
     for cluster in range(6):
-        indices_cluster = np.where(etiquetas_cluster == cluster)[0]
+        print(i,cluster)
+        #indices_cluster = np.where(etiquetas_cluster == cluster)[0]
+        print(len(etiquetas_cluster[hasta_donde_llega_cada_grupo_anterior:hasta_donde_llega_cada_grupo] ))
+        indices_cluster = np.where(etiquetas_cluster[hasta_donde_llega_cada_grupo_anterior:hasta_donde_llega_cada_grupo+hasta_donde_llega_cada_grupo_anterior] == cluster)[0]
         porcentajes=len(indices_cluster)/len(rmsd)*100
         percentaje=np.round(porcentajes,2)
         axs[row, col].scatter(tiempo[indices_cluster], rmsd[indices_cluster], c=colores[cluster], label=f'Cluster {cluster+1}'+' '+str(percentaje)+'%')
         axs[row,col].legend(fontsize=10,ncol=3,markerscale=2.,loc='lower right');axs[row,col].tick_params(labelsize=18)
-        
+    hasta_donde_llega_cada_grupo_anterior=np.copy(hasta_donde_llega_cada_grupo)
     print(str(lista_de_simulaciones[i]))
     titulo_1=axs[row, col]
     titulo_1=titulo_1.set_title(str(lista_de_simulaciones[i]),y=0.6,x=0.5);titulo_1.set_position([.08,0.85]);titulo_1.set_bbox(dict(facecolor='white', edgecolor='black', pad=5.0))
