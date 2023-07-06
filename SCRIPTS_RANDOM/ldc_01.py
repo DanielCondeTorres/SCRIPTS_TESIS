@@ -4,6 +4,7 @@
 # Version March 19, 2018
 #EXAMPLES: 
 #./ldc_00.py -p pc_pg_g_180ns_P8.pdb -x pc_pg_g_180ns_P8.xtc -a 'P8' -t 2 -r 'LPOG' -o LPOG_2.ldc -s 20"
+#tras:gmx trjconv -s prod_1.tpr -f conjunto.xtc -pbc mol -center -ur compact -o o.xtc -skip 10 -b 2000000 -e 4000000
 
 
 import numpy as np
