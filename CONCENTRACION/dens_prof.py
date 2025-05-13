@@ -91,7 +91,7 @@ def main(pdb, xtc, nbins=200):
     plt.plot(z_mem,  prof_mem,  label='Membrane P', linewidth=1.5)
     plt.xlabel('Z-position (nm)',fontsize=20)
     plt.ylabel('Normalized density',fontsize=20)
-    plt.legend(frameon=False)
+    plt.legend(frameon=False, ncol=3, loc='upper center', bbox_to_anchor=(0.5, 1.15))
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.axvline(0, color='k', linestyle='--', linewidth=1)
